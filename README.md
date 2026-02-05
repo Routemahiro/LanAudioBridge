@@ -229,7 +229,7 @@ MMEは互換性重視で、一部環境で遅延が増える場合がありま�
 ### 使用技術
 
 - .NET 8 / C#
-- WPF (Windows Presentation Foundation)
+- Windows Forms (WinForms)
 - NAudio (オーディオ処理)
 - Concentus (Opus エンコード/デコード)
 

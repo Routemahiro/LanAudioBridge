@@ -1,5 +1,6 @@
 - [x] READMEにVB-CABLEのDL先を追記 (2026-02-05 完了)
 - [x] .gitignoreの確認（ログ/設定の扱い） (2026-02-05 完了)
+- [x] READMEの技術表記修正（WPF→WinForms） (2026-02-05 完了)
 
 - [x] UIリファクタ Phase1: `Form1` をpartial分割（挙動変更なし） (2026-02-05 完了)
   - [x] `Form1.Ui.cs` へUI構築/表示更新を移動
