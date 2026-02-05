@@ -12,7 +12,7 @@
   - [x] Phase1完了の声かけ（動作確認依頼）
   - [x] ユーザー動作確認（起動/受信/送信/設定）
 
-- [ ] UIリファクタ Phase2: UIとロジック分離（Engine化）
+- [x] UIリファクタ Phase2: UIとロジック分離（Engine化） (作業中)
   - [ ] Engine境界/API設計（イベント通知、UIスレッド境界）
   - [ ] `ReceiverEngine` 作成（受信/ジッタ/再生）
   - [ ] `SenderEngine` 作成（キャプチャ/エンコード/送信）
