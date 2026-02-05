@@ -12,12 +12,17 @@
   - [x] Phase1完了の声かけ（動作確認依頼）
   - [x] ユーザー動作確認（起動/受信/送信/設定）
 
-- [x] UIリファクタ Phase2: UIとロジック分離（Engine化） (作業中)
-  - [ ] Engine境界/API設計（イベント通知、UIスレッド境界）
-  - [ ] `ReceiverEngine` 作成（受信/ジッタ/再生）
-  - [ ] `SenderEngine` 作成（キャプチャ/エンコード/送信）
-  - [ ] `Form1` をEngine利用に置換（UIは表示と操作だけ）
-  - [ ] `dotnet build` + スモーク確認
+- [ ] UIリファクタ Phase2: UIとロジック分離（Engine化） (作業中)
+  - [x] Engine境界/API設計（イベント通知、UIスレッド境界） (2026-02-05 完了)
+  - [x] `ReceiverEngine` 作成（受信/ジッタ/再生） (2026-02-05 完了)
+  - [x] `SenderEngine` 作成（キャプチャ/エンコード/送信） (2026-02-05 完了)
+  - [x] `Form1` をEngine利用に置換（UIは表示と操作だけ） (2026-02-05 完了)
+  - [x] `dotnet build` + スモーク確認 (2026-02-05 完了)
+
+- [ ] 音量/ノイズ改善: 送信ゲイン二重適用の解消 + Opus無音時も常時送信（PLCノイズ抑制）
+  - [ ] `SenderEngine` の送信ゲインを1回適用に統一
+  - [ ] Opusモードは無音でも毎フレーム送信（KeepAlive依存を減らす）
+  - [ ] `dotnet build` で確認
 
 - [x] 配布/共有: `dotnet publish` 出力をリポジトリ内に固定 (2026-02-05 完了)
   - [x] `publish.ps1` を追加（出力先: `.\publish\...`）
