@@ -1,0 +1,13 @@
+2026-02-05
+- UIリファクタ Phase2（Engine化）を着手。
+  - `LanMicBridge/Engine/ReceiverEngine.cs` / `SenderEngine.cs` を追加して、受信/送信ロジックをFormから分離。
+  - `LanMicBridge/Audio/AudioProcessor.cs` を追加（AGC/ゲイン/ソフトクリップ等をForm依存から切り離し）。
+  - `Form1` は Engine を生成/設定してイベント購読し、UI更新に専念する形へ置換。
+  - 旧ロジックの残骸（partial内の受信/送信ループ等）を削除してビルド警告を解消。
+  - `dotnet build -c Release` でビルド成功（警告0/エラー0）。
+
+- 音量/ノイズ改善（バランス案）
+  - 送信側のゲイン二重適用を解消（`SenderEngine`）
+  - Opusモードは無音でも毎フレーム送信（KeepAlive依存を減らし、欠損扱い→PLCノイズの原因を抑制）
+  - `dotnet build -c Release` でビルド成功（警告0/エラー0）
+
