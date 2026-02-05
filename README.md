@@ -246,6 +246,33 @@ dotnet build --configuration Release
 dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
 ```
 
+### LAN共有フォルダで配布/実行（publish出力をリポジトリ内に作る）
+
+ビルド環境（SDKあり）で以下を実行して、リポジトリ直下の `publish/` に成果物を出力します。
+
+```powershell
+.\publish.ps1 -Runtime win-x64
+```
+
+自己完結（Runtime不要）にしたい場合：
+
+```powershell
+.\publish.ps1 -Runtime win-x64 -SelfContained
+```
+
+単一ファイルにしたい場合（任意）：
+
+```powershell
+.\publish.ps1 -Runtime win-x64 -SingleFile
+```
+
+出力先の例：
+
+- `.\publish\LanMicBridge\win-x64\framework-dependent\`
+- `.\publish\LanMicBridge\win-x64\self-contained\`
+
+LAN共有で使う場合は、この `publish/` 配下（またはそのフォルダだけ）を共有して、各PCで `LanMicBridge.exe` を実行してください。
+
 ---
 
 ## ライセンス
