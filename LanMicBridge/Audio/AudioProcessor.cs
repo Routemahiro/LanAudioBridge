@@ -1,8 +1,10 @@
-namespace LanMicBridge;
+namespace LanMicBridge.Audio;
 
-partial class Form1
+internal static class AudioProcessor
 {
-    private static void ApplyGain(short[] pcm, float gain)
+    private const float Epsilon = 1e-9f;
+
+    public static void ApplyGain(short[] pcm, float gain)
     {
         if (Math.Abs(gain - 1f) < 0.001f)
         {
@@ -25,7 +27,7 @@ partial class Form1
         }
     }
 
-    private static void ApplyAgcAndGain(
+    public static void ApplyAgcAndGain(
         short[] pcm,
         float rmsDbPre,
         ref float agcGainDb,
@@ -58,10 +60,10 @@ partial class Form1
         var gainLinear = DbToLinear(agcGainDb) * userGain * gate;
         ApplyGainWithSoftClip(pcm, gainLinear);
 
-        AudioMeter.ComputePeakRms(pcm, out outPeak, out outRms);
+        LanMicBridge.AudioMeter.ComputePeakRms(pcm, out outPeak, out outRms);
     }
 
-    private static void ApplyGainWithSoftClip(short[] pcm, float gain)
+    public static void ApplyGainWithSoftClip(short[] pcm, float gain)
     {
         if (Math.Abs(gain - 1f) < 0.001f)
         {
@@ -86,36 +88,19 @@ partial class Form1
         }
     }
 
-    private static float DbToLinear(float db)
+    public static float DbToLinear(float db)
     {
         return (float)Math.Pow(10.0, db / 20.0);
     }
 
-    private static float LinearToDb(float linear)
+    public static float LinearToDb(float linear)
     {
-        return 20f * (float)Math.Log10(linear + 1e-9f);
+        return 20f * (float)Math.Log10(linear + Epsilon);
     }
 
     private static float Lerp(float a, float b, float t)
     {
         return a + (b - a) * t;
     }
-
-    private void FillTestToneFrame(short[] pcm)
-    {
-        var amplitude = (float)Math.Pow(10, TestToneLevelDb / 20.0);
-        var phaseStep = 2.0 * Math.PI * TestToneHz / SampleRate;
-
-        for (var i = 0; i < pcm.Length; i++)
-        {
-            var value = Math.Sin(_sendTestPhase) * amplitude;
-            _sendTestPhase += phaseStep;
-            if (_sendTestPhase >= Math.PI * 2)
-            {
-                _sendTestPhase -= Math.PI * 2;
-            }
-
-            pcm[i] = (short)Math.Round(Math.Clamp(value, -1.0, 1.0) * short.MaxValue);
-        }
-    }
 }
+

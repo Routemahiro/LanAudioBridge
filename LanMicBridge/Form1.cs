@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using Concentus.Enums;
 using Concentus.Structs;
+using LanMicBridge.Engine;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -44,92 +45,24 @@ public partial class Form1 : Form
     private const float SendGainBasePercent = 40f;
     private const int OutputForceStartMs = 1000;
 
-    private readonly AudioMeter _meterA = new();
-    private readonly Stopwatch _statsWatch = new();
-    private readonly Stopwatch _receiverClock = new();
-
     private MMDeviceEnumerator? _deviceEnumerator;
     private readonly List<MMDevice> _renderDevices = new();
     private readonly List<MMDevice> _captureDevices = new();
     private readonly List<WaveInCapabilities> _mmeDevices = new();
-
-    private WasapiOut? _output;
-    private BufferedWaveProvider? _playBuffer;
-    private UdpClient? _receiverUdp;
-    private CancellationTokenSource? _receiverCts;
-    private Task? _receiverTask;
-    private OpusDecoder? _decoder;
-    private readonly object _jitterLock = new();
-    private readonly SortedDictionary<uint, PacketEntry> _jitterBuffer = new();
-    private CancellationTokenSource? _playoutCts;
-    private Task? _playoutTask;
-    private uint _playoutSequence;
-    private bool _playoutInitialized;
-    private bool _playoutBuffering = true;
-    private DateTime _playoutBufferingSince = DateTime.MinValue;
-    private int _baseJitterFrames;
-    private int _adaptiveJitterFrames;
-    private int _minJitterFrames;
-    private int _maxJitterFrames;
-    private int _jitterWindowFrames;
-    private int _jitterMissesWindow;
-    private PacketType _lastPacketType = PacketType.Audio;
-    private long _packetsReceived;
-    private long _packetsLost;
-    private long _bytesReceived;
-    private double _jitterMs;
-    private double _lastTransitMs;
-    private DateTime _lastPacketTime = DateTime.MinValue;
-    private bool _hadConnection;
-    private IPEndPoint? _lastSenderEndpoint;
-    private DateTime _suppressNetworkAudioUntil = DateTime.MinValue;
-    private DateTime? _lowRmsSince;
     private string _lastReceiverStatus = string.Empty;
     private string _lastSenderStatus = string.Empty;
     private int _senderReconnectCount;
     private int _senderDisconnectCount;
-    private DateTime _lastStatsLogged = DateTime.MinValue;
     private float _outputGain = 1.0f;
-    private DateTime _lastSenderMeterUpdate = DateTime.MinValue;
-
-    private IWaveIn? _capture;
-    private BufferedWaveProvider? _captureBuffer;
-    private ISampleProvider? _sendSampleProvider;
-    private float[]? _sendSampleBuffer;
-    private OpusEncoder? _encoder;
-    private UdpClient? _senderUdp;
-    private CancellationTokenSource? _senderCts;
-    private Task? _senderTask;
-    private Task? _senderReceiveTask;
-    private uint _senderId;
-    private uint _sendSequence;
-    private DateTime _lastKeepAlive = DateTime.MinValue;
-    private DateTime _lastHello = DateTime.MinValue;
-    private DateTime _lastAccept = DateTime.MinValue;
-    private bool _accepted;
-    private DateTime _lastVoiceTime = DateTime.MinValue;
-    private int _selectedBitrate = 32000;
-    private int _selectedComplexity = 5;
     private float _sendGain = 1.0f;
-    private float _recvAgcGainDb = 0f;
-    private float _sendAgcGainDb = 0f;
     private bool _enableRecvProcessing = true;
     private bool _enableSendProcessing = true;
     private bool _sendTestTone;
-    private double _sendTestPhase;
-    private bool _outputStarted;
-    private int _prebufferMs;
-    private int _rebufferThresholdMs;
     private bool _sendPcmDirect;
     private AppSettings _appSettings = new();
     private bool _loadingSettings;
-    private DateTime _outputStartPendingSince = DateTime.MinValue;
     private int _outputForceStartMs = OutputForceStartMs;
     private float _vadThresholdDb = VadThresholdDb;
-
-    private System.Windows.Forms.Timer _statsTimer = null!;
-    private System.Windows.Forms.Timer _receiverStatusTimer = null!;
-    private System.Windows.Forms.Timer _silenceTimer = null!;
 
     private RadioButton _radioReceiver = null!;
     private RadioButton _radioSender = null!;
@@ -183,11 +116,13 @@ public partial class Form1 : Form
     private DateTime _lastAlertTime = DateTime.MinValue;
     private SettingsForm? _settingsForm;
 
+    private ReceiverEngine? _receiverEngine;
+    private SenderEngine? _senderEngine;
+
     public Form1()
     {
         InitializeComponent();
         BuildUi();
-        _senderId = (uint)Random.Shared.Next(1, int.MaxValue);
     }
 
     private void Form1_Load(object? sender, EventArgs e)
@@ -212,9 +147,6 @@ public partial class Form1 : Form
             _settingsForm = null;
         }
         _deviceEnumerator?.Dispose();
-        _statsTimer?.Stop();
-        _receiverStatusTimer?.Stop();
-        _silenceTimer?.Stop();
         AppLogger.Log("終了");
     }
     private void SetStatus(string text)

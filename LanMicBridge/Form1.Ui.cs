@@ -1,5 +1,6 @@
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using LanMicBridge.Engine;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -73,13 +74,6 @@ partial class Form1
         _statusStrip.Items.Add(_alertLabel);
         _statusStrip.Items.Add(_restartButton);
         mainLayout.Controls.Add(_statusStrip, 0, 2);
-
-        _statsTimer = new System.Windows.Forms.Timer { Interval = 1000 };
-        _statsTimer.Tick += (_, _) => UpdateStatsLabel();
-        _receiverStatusTimer = new System.Windows.Forms.Timer { Interval = 500 };
-        _receiverStatusTimer.Tick += (_, _) => UpdateReceiverStatus();
-        _silenceTimer = new System.Windows.Forms.Timer { Interval = 100 };
-        _silenceTimer.Tick += (_, _) => EnsureSilence();
 
         Load += Form1_Load;
         FormClosing += Form1_FormClosing;
@@ -188,7 +182,14 @@ partial class Form1
         detailLayout.Controls.Add(_comboJitter, 1, 1);
         detailLayout.Controls.Add(new Label { Text = "音声処理", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
         _chkRecvProcessing = new CheckBox { Text = "AGC/ゲート/クリップ有効", Dock = DockStyle.Fill, Checked = true };
-        _chkRecvProcessing.CheckedChanged += (_, _) => _enableRecvProcessing = _chkRecvProcessing.Checked;
+        _chkRecvProcessing.CheckedChanged += (_, _) =>
+        {
+            _enableRecvProcessing = _chkRecvProcessing.Checked;
+            if (_receiverEngine != null)
+            {
+                _receiverEngine.EnableProcessing = _enableRecvProcessing;
+            }
+        };
         detailLayout.Controls.Add(_chkRecvProcessing, 1, 2);
         detailLayout.Controls.Add(new Label
         {
@@ -362,6 +363,7 @@ partial class Form1
         {
             _sendPcmDirect = _comboSendMode.SelectedIndex == 1;
             _comboQuality.Enabled = !_sendPcmDirect;
+            _senderEngine?.SetMode(_sendPcmDirect ? SendMode.PcmDirect : SendMode.Opus);
         };
         _sendPcmDirect = _comboSendMode.SelectedIndex == 1;
         detailLayout.Controls.Add(_comboSendMode, 1, 3);
@@ -385,11 +387,25 @@ partial class Form1
         UpdateVadThreshold();
         detailLayout.Controls.Add(new Label { Text = "音声処理", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
         _chkSendProcessing = new CheckBox { Text = "AGC/ゲート/クリップ有効", Dock = DockStyle.Fill, Checked = true };
-        _chkSendProcessing.CheckedChanged += (_, _) => _enableSendProcessing = _chkSendProcessing.Checked;
+        _chkSendProcessing.CheckedChanged += (_, _) =>
+        {
+            _enableSendProcessing = _chkSendProcessing.Checked;
+            if (_senderEngine != null)
+            {
+                _senderEngine.EnableProcessing = _enableSendProcessing;
+            }
+        };
         detailLayout.Controls.Add(_chkSendProcessing, 1, 6);
         detailLayout.Controls.Add(new Label { Text = "送信テスト音", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
         _chkSendTestTone = new CheckBox { Text = "1kHzサイン送出", Dock = DockStyle.Fill, Checked = false };
-        _chkSendTestTone.CheckedChanged += (_, _) => _sendTestTone = _chkSendTestTone.Checked;
+        _chkSendTestTone.CheckedChanged += (_, _) =>
+        {
+            _sendTestTone = _chkSendTestTone.Checked;
+            if (_senderEngine != null)
+            {
+                _senderEngine.SendTestTone = _sendTestTone;
+            }
+        };
         detailLayout.Controls.Add(_chkSendTestTone, 1, 7);
         detailLayout.Controls.Add(new Label { Text = "送信入力レベル", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 8);
         _lblSenderMeterDetail = new Label { Text = "Peak -∞ dBFS / RMS -∞ dBFS", AutoSize = true, Anchor = AnchorStyles.Left };
@@ -425,7 +441,7 @@ partial class Form1
         if (receiverMode)
         {
             StopSender();
-            if (_receiverUdp == null)
+            if (_receiverEngine == null || !_receiverEngine.IsRunning)
             {
                 AppLogger.Init("Receiver");
                 StartReceiver();
@@ -624,7 +640,7 @@ partial class Form1
 
     private void RestartOutputForJitter()
     {
-        if (_output != null)
+        if (_receiverEngine != null && _receiverEngine.IsRunning)
         {
             RestartReceiverOutput();
         }
