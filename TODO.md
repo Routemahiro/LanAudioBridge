@@ -25,10 +25,10 @@
   - [x] `dotnet build` で確認 (2026-02-05 完了)
 
 - [ ] 音量/運用改善: UI 100% = unity(1.0) + AGC調整 + 受信処理OFF推奨
-  - [ ] `SendGainBasePercent`/`OutputGainBasePercent` を unity 基準に（100% -> 1.0）
-  - [ ] 送信AGCの `maxBoost`/`noBoostBelow` を見直し（maxBoost 18〜24dB）
-  - [ ] 受信側の音声処理はデフォルトOFF、UIに「OFF推奨」表示
-  - [ ] `dotnet build` で確認
+  - [x] `SendGainBasePercent`/`OutputGainBasePercent` を unity 基準に（100% -> 1.0） (2026-02-05 完了)
+  - [x] 送信AGCの `maxBoost`/`noBoostBelow` を見直し（maxBoost 18〜24dB） (2026-02-05 完了)
+  - [x] 受信側の音声処理はデフォルトOFF、UIに「OFF推奨」表示 (2026-02-05 完了)
+  - [x] `dotnet build` で確認 (2026-02-05 完了)
 
 - [x] 配布/共有: `dotnet publish` 出力をリポジトリ内に固定 (2026-02-05 完了)
   - [x] `publish.ps1` を追加（出力先: `.\publish\...`）

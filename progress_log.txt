@@ -11,3 +11,9 @@
   - Opusモードは無音でも毎フレーム送信（KeepAlive依存を減らし、欠損扱い→PLCノイズの原因を抑制）
   - `dotnet build -c Release` でビルド成功（警告0/エラー0）
 
+- 音量/運用改善（unity/AGC/受信推奨）
+  - UIの「100%」を unity(1.0) 基準に変更（`SendGainBasePercent`/`OutputGainBasePercent` を 100%基準へ）
+  - 送信AGCの上限/閾値を見直し（maxBoost=24dB, noBoostBelow=-65dB）
+  - 受信側の音声処理はデフォルトOFF、UI上で「OFF推奨」を明記
+  - `dotnet build -c Release` でビルド成功（警告0/エラー0）
+

@@ -181,7 +181,7 @@ partial class Form1
         _comboJitter.SelectedIndexChanged += (_, _) => RestartOutputForJitter();
         detailLayout.Controls.Add(_comboJitter, 1, 1);
         detailLayout.Controls.Add(new Label { Text = "音声処理", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
-        _chkRecvProcessing = new CheckBox { Text = "AGC/ゲート/クリップ有効", Dock = DockStyle.Fill, Checked = true };
+        _chkRecvProcessing = new CheckBox { Text = "AGC/ゲート/クリップ有効（通常はOFF推奨）", Dock = DockStyle.Fill, Checked = false };
         _chkRecvProcessing.CheckedChanged += (_, _) =>
         {
             _enableRecvProcessing = _chkRecvProcessing.Checked;

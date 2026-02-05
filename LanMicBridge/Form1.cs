@@ -41,8 +41,9 @@ public partial class Form1 : Form
     private const float SendNoiseGateRangeDb = 8f;
     private const int TestToneHz = 1000;
     private const float TestToneLevelDb = -12f;
-    private const float OutputGainBasePercent = 42f;
-    private const float SendGainBasePercent = 40f;
+    // UIの「100%」をunity(1.0)基準にする
+    private const float OutputGainBasePercent = 100f;
+    private const float SendGainBasePercent = 100f;
     private const int OutputForceStartMs = 1000;
 
     private MMDeviceEnumerator? _deviceEnumerator;
@@ -55,7 +56,8 @@ public partial class Form1 : Form
     private int _senderDisconnectCount;
     private float _outputGain = 1.0f;
     private float _sendGain = 1.0f;
-    private bool _enableRecvProcessing = true;
+    // 受信側のAGC/ゲートはポンピング等が出やすいので、基本OFF推奨
+    private bool _enableRecvProcessing = false;
     private bool _enableSendProcessing = true;
     private bool _sendTestTone;
     private bool _sendPcmDirect;

@@ -20,8 +20,9 @@ internal sealed class SenderEngine : IDisposable
     // Opusは無音でも毎フレーム送る（欠損扱い→PLCノイズの原因を避ける）ため、KeepAlive/VADハングオーバーは不要。
 
     private const float SendAgcTargetRmsDb = -24f;
-    private const float SendAgcNoBoostBelowDb = -55f;
-    private const float SendAgcMaxBoostDb = 12f;
+    // 小さい声を拾いやすくしつつ、必要なら十分に持ち上げられるようにする
+    private const float SendAgcNoBoostBelowDb = -65f;
+    private const float SendAgcMaxBoostDb = 24f;
     private const float SendAgcMaxCutDb = -12f;
     private const float SendAgcAttack = 0.12f;
     private const float SendAgcRelease = 0.05f;
