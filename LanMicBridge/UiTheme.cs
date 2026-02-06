@@ -7,9 +7,9 @@ namespace LanMicBridge;
 internal static class UiTheme
 {
     // ── アクセント色（モードボタン選択時） ──
-    public static readonly Color Accent = ColorTranslator.FromHtml("#007ACC");
-    public static readonly Color AccentHover = ColorTranslator.FromHtml("#1C97EA");
-    public static readonly Color AccentPressed = ColorTranslator.FromHtml("#005A9E");
+    public static readonly Color Accent = ColorTranslator.FromHtml("#0066AA");
+    public static readonly Color AccentHover = ColorTranslator.FromHtml("#0078C0");
+    public static readonly Color AccentPressed = ColorTranslator.FromHtml("#004E82");
 
     // ── 状態色（接続インジケーター用） ──
     public static readonly Color StateOk = Color.LimeGreen;
