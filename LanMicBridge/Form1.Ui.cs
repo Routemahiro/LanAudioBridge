@@ -11,8 +11,8 @@ partial class Form1
     private void BuildUi()
     {
         Text = "LanMicBridge";
-        MinimumSize = new Size(720, 420);
-        Size = new Size(780, 460);
+        MinimumSize = new Size(720, 460);
+        Size = new Size(780, 500);
         StartPosition = FormStartPosition.CenterScreen;
 
         var mainLayout = new TableLayoutPanel
