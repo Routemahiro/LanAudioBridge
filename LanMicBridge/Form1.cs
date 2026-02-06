@@ -92,6 +92,9 @@ public partial class Form1 : Form
     private Label _lblOutputLevel = null!;
     private CheckBox _chkRecvProcessing = null!;
     private GroupBox _receiverInfoGroup = null!;
+    private Label _lblConnectionIndicator = null!;
+    private LinkLabel _linkConnectionInfo = null!;
+    private Panel _panelConnectionInfo = null!;
 
     private TextBox _txtIp = null!;
     private Button _btnSenderToggle = null!;
@@ -166,6 +169,23 @@ public partial class Form1 : Form
         else
         {
             _statusLabel.Text = text;
+        }
+
+        // 接続インジケーター更新（受信モード時）
+        if (_radioReceiver.Checked)
+        {
+            if (text.Contains("受信中") || text.Contains("再生中"))
+            {
+                UpdateConnectionIndicator("受信中", Color.LimeGreen);
+            }
+            else if (text.Contains("エラー"))
+            {
+                UpdateConnectionIndicator("エラー", Color.Red);
+            }
+            else
+            {
+                UpdateConnectionIndicator("接続待ち", Color.Gray);
+            }
         }
     }
 

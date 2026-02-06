@@ -55,7 +55,7 @@ partial class Form1
 
     private void UpdateReceiverInputLevel(AudioLevel level)
     {
-        var text = $"音量: Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
+        var text = $"受信: Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
         if (_lblMeterA.InvokeRequired)
         {
             _lblMeterA.BeginInvoke(() => _lblMeterA.Text = text);
@@ -68,7 +68,7 @@ partial class Form1
 
     private void UpdateReceiverOutputLevel(AudioLevel level)
     {
-        var text = $"Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
+        var text = $"出力: Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
         if (_lblOutputLevel.InvokeRequired)
         {
             _lblOutputLevel.BeginInvoke(() => _lblOutputLevel.Text = text);

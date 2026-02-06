@@ -169,7 +169,7 @@ partial class Form1
 
     private void UpdateSenderMeterFromEngine(AudioLevel level)
     {
-        var text = $"Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
+        var text = $"入力: Peak {level.PeakDb:0.0} dBFS / RMS {level.RmsDb:0.0} dBFS";
         UpdateSenderMeterText(text);
     }
 
@@ -212,6 +212,27 @@ partial class Form1
         else
         {
             _lblSenderStatus.Text = text;
+        }
+
+        // 接続インジケーター更新（送信モード時）
+        if (_radioSender.Checked)
+        {
+            if (text == "送信中")
+            {
+                UpdateConnectionIndicator("送信中", Color.LimeGreen);
+            }
+            else if (text == "接続中" || text == "再接続中")
+            {
+                UpdateConnectionIndicator("接続中", Color.Gold);
+            }
+            else if (text.Contains("エラー"))
+            {
+                UpdateConnectionIndicator("エラー", Color.Red);
+            }
+            else
+            {
+                UpdateConnectionIndicator("待機中", Color.Gray);
+            }
         }
     }
 }

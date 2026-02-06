@@ -48,8 +48,17 @@ partial class Form1
             Location = new Point(190, 10)
         };
         _radioSender.CheckedChanged += ModeChanged;
+        _lblConnectionIndicator = new Label
+        {
+            Text = "● 接続待ち",
+            AutoSize = true,
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+            Location = new Point(380, 18)
+        };
         modePanel.Controls.Add(_radioReceiver);
         modePanel.Controls.Add(_radioSender);
+        modePanel.Controls.Add(_lblConnectionIndicator);
         mainLayout.Controls.Add(modePanel, 0, 0);
 
         var contentPanel = new Panel { Dock = DockStyle.Fill };
@@ -84,21 +93,112 @@ partial class Form1
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 6,
+            ColumnCount = 1,
+            RowCount = 7,
             Padding = new Padding(16)
         };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 0: 受信音量
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 1: 出力レベル
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 警告
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 3: 統計
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 4: 接続情報（折りたたみ）
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 5: 詳細設定リンク
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 6: 余白
         panel.Controls.Add(layout);
 
-        layout.Controls.Add(new Label { Text = "このPCのIP (IPv4)", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
+        // Row 0: 受信音量（メイン表示に昇格）
+        _lblMeterA = new Label
+        {
+            Text = "受信: Peak -∞ dBFS / RMS -∞ dBFS",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left,
+            Padding = new Padding(0, 4, 0, 2)
+        };
+        layout.Controls.Add(_lblMeterA, 0, 0);
+
+        // Row 1: 出力後レベル（メイン表示に昇格）
+        _lblOutputLevel = new Label
+        {
+            Text = "出力: Peak -∞ dBFS / RMS -∞ dBFS",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left,
+            Padding = new Padding(0, 2, 0, 2)
+        };
+        layout.Controls.Add(_lblOutputLevel, 0, 1);
+
+        // Row 2: 警告
+        _lblMeterWarning = new Label
+        {
+            Text = "",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left,
+            ForeColor = Color.DarkOrange
+        };
+        layout.Controls.Add(_lblMeterWarning, 0, 2);
+
+        // Row 3: パケット統計（メイン表示に昇格）
+        _lblStats = new Label
+        {
+            Text = "Packets: 0  Loss: 0%  Jitter: 0ms  Delay: 0ms",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left,
+            Padding = new Padding(0, 4, 0, 4)
+        };
+        layout.Controls.Add(_lblStats, 0, 3);
+
+        // Row 4: 接続情報（折りたたみセクション）
+        var connSection = new Panel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink
+        };
+        var connSectionLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            RowCount = 2
+        };
+        connSectionLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        connSectionLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        connSectionLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        _linkConnectionInfo = new LinkLabel
+        {
+            Text = "▶ 接続情報を表示",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left
+        };
+        _linkConnectionInfo.Click += (_, _) => ToggleConnectionInfo();
+        connSectionLayout.Controls.Add(_linkConnectionInfo, 0, 0);
+
+        _panelConnectionInfo = new Panel
+        {
+            Dock = DockStyle.Top,
+            Visible = false,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink
+        };
+        var connLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 2,
+            RowCount = 4,
+            Padding = new Padding(16, 4, 0, 4)
+        };
+        connLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
+        connLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        connLayout.Controls.Add(new Label { Text = "このPCのIP (IPv4)", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
         var ipPanel = new Panel { Dock = DockStyle.Fill };
         _lblIpList = new Label
         {
@@ -119,30 +219,38 @@ partial class Form1
         ipPanel.Controls.Add(_btnCopyIp);
         _btnCopyIp.Location = new Point(ipPanel.Width - _btnCopyIp.Width - 4, 4);
         ipPanel.Resize += (_, _) => _btnCopyIp.Location = new Point(ipPanel.Width - _btnCopyIp.Width - 4, 4);
-        layout.Controls.Add(ipPanel, 1, 0);
+        connLayout.Controls.Add(ipPanel, 1, 0);
 
-        layout.Controls.Add(new Label { Text = "待受ポート", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 1);
+        connLayout.Controls.Add(new Label { Text = "待受ポート", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 1);
         _lblPort = new Label { Text = DefaultPort.ToString(), AutoSize = true, Anchor = AnchorStyles.Left };
-        layout.Controls.Add(_lblPort, 1, 1);
+        connLayout.Controls.Add(_lblPort, 1, 1);
 
-        layout.Controls.Add(new Label { Text = "VB-CABLE 状態", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
+        connLayout.Controls.Add(new Label { Text = "VB-CABLE 状態", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
         _lblCableStatus = new Label { Text = "確認中...", AutoSize = true, Anchor = AnchorStyles.Left };
-        layout.Controls.Add(_lblCableStatus, 1, 2);
+        connLayout.Controls.Add(_lblCableStatus, 1, 2);
 
         _lblCableGuide = new Label
         {
             Text = "",
-            AutoSize = false,
+            AutoSize = true,
             Dock = DockStyle.Fill
         };
-        layout.SetColumnSpan(_lblCableGuide, 2);
-        layout.Controls.Add(_lblCableGuide, 0, 3);
+        connLayout.SetColumnSpan(_lblCableGuide, 2);
+        connLayout.Controls.Add(_lblCableGuide, 0, 3);
 
+        _panelConnectionInfo.Controls.Add(connLayout);
+        connSectionLayout.Controls.Add(_panelConnectionInfo, 0, 1);
+        connSection.Controls.Add(connSectionLayout);
+        layout.Controls.Add(connSection, 0, 4);
+
+        // Row 5: 詳細設定リンク
         _linkReceiverDetail = new LinkLabel { Text = "詳細設定を開く", AutoSize = true, Anchor = AnchorStyles.Left };
         _linkReceiverDetail.Click += (_, _) => OpenSettingsTab(0);
-        layout.Controls.Add(_linkReceiverDetail, 0, 4);
-        layout.SetColumnSpan(_linkReceiverDetail, 2);
+        layout.Controls.Add(_linkReceiverDetail, 0, 5);
 
+        // --- 設定ウィンドウ用（メイン画面には追加しない） ---
+
+        // 受信詳細設定 GroupBox
         _groupReceiverDetail = new GroupBox
         {
             Text = "詳細設定",
@@ -157,7 +265,7 @@ partial class Form1
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 2,
-            RowCount = 7,
+            RowCount = 6,
             Padding = new Padding(8)
         };
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
@@ -168,7 +276,6 @@ partial class Form1
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));  // 出力ゲイン
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));  // 強制再生待ち
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // チェック音
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 情報
         _groupReceiverDetail.Controls.Add(detailLayout);
         detailLayout.Controls.Add(new Label { Text = "出力デバイス", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
         _comboOutputDevice = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -230,9 +337,10 @@ partial class Form1
         detailLayout.Controls.Add(_btnCheckTone, 0, 5);
         detailLayout.Controls.Add(_lblCheckResult, 1, 5);
 
+        // 情報 GroupBox（設定ウィンドウの「情報」タブ用 — トラブルシューティングガイドに特化）
         _receiverInfoGroup = new GroupBox
         {
-            Text = "情報",
+            Text = "トラブルシューティング",
             Dock = DockStyle.Top,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink
@@ -249,25 +357,21 @@ partial class Form1
 
         _lblMeterGuide = new Label
         {
-            Text = "音量が0付近: 送信停止 / IP / Firewallを確認\n音量が動くのに拾えない: 入力アプリのマイク入力を CABLE Output に設定",
+            Text = "■ 音量が0付近で動かない場合:\n" +
+                   "  → 送信側が停止していないか確認\n" +
+                   "  → 送信側のIPアドレスが正しいか確認\n" +
+                   "  → Firewallがポート48750を許可しているか確認\n\n" +
+                   "■ 音量が動くのに音が聞こえない場合:\n" +
+                   "  → 入力先アプリのマイク入力を「CABLE Output」に設定\n" +
+                   "  → 出力デバイスが「CABLE Input」になっているか確認\n\n" +
+                   "■ 音が途切れる/ノイズが出る場合:\n" +
+                   "  → ジッタバッファを「Stable」や「Ultra stable」に変更\n" +
+                   "  → 送信品質を下げてみる",
             AutoSize = true,
-            Anchor = AnchorStyles.Left
+            Anchor = AnchorStyles.Left,
+            Padding = new Padding(8)
         };
         infoLayout.Controls.Add(_lblMeterGuide, 0, 0);
-
-        _lblMeterWarning = new Label { Text = "", AutoSize = true, Anchor = AnchorStyles.Left };
-        infoLayout.Controls.Add(_lblMeterWarning, 0, 1);
-
-        _lblMeterA = new Label { Text = "音量: Peak -∞ dBFS / RMS -∞ dBFS", AutoSize = true, Anchor = AnchorStyles.Left };
-        infoLayout.Controls.Add(_lblMeterA, 0, 2);
-
-        _lblOutputLevel = new Label { Text = "出力後レベル: Peak -∞ dBFS / RMS -∞ dBFS", AutoSize = true, Anchor = AnchorStyles.Left };
-        infoLayout.Controls.Add(_lblOutputLevel, 0, 3);
-
-        _lblStats = new Label { Text = "Packets: 0  Loss: 0%  Jitter: 0ms  Delay: 0ms", AutoSize = true, Anchor = AnchorStyles.Left };
-        infoLayout.Controls.Add(_lblStats, 0, 4);
-
-        // 詳細設定と情報は別ウィンドウに移動するため、ここでは追加しない
 
         return panel;
     }
@@ -279,15 +383,16 @@ partial class Form1
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
-            RowCount = 4,
+            RowCount = 5,
             Padding = new Padding(16)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 0: IP入力
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 1: 開始/停止 + ステータス
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 送信入力レベル（メインに昇格）
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 3: 詳細設定リンク
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 4: 余白
         panel.Controls.Add(layout);
 
         layout.Controls.Add(new Label { Text = "受信側IPアドレス", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
@@ -300,10 +405,24 @@ partial class Form1
         layout.Controls.Add(_btnSenderToggle, 0, 1);
         layout.Controls.Add(_lblSenderStatus, 1, 1);
 
+        // Row 2: 送信入力レベル（メイン表示に昇格）
+        _lblSenderMeterDetail = new Label
+        {
+            Text = "入力: Peak -∞ dBFS / RMS -∞ dBFS",
+            AutoSize = true,
+            Anchor = AnchorStyles.Left,
+            Padding = new Padding(0, 4, 0, 4)
+        };
+        layout.SetColumnSpan(_lblSenderMeterDetail, 2);
+        layout.Controls.Add(_lblSenderMeterDetail, 0, 2);
+
+        // Row 3: 詳細設定リンク
         _linkSenderDetail = new LinkLabel { Text = "詳細設定を開く", AutoSize = true, Anchor = AnchorStyles.Left };
         _linkSenderDetail.Click += (_, _) => OpenSettingsTab(1);
-        layout.Controls.Add(_linkSenderDetail, 0, 2);
+        layout.Controls.Add(_linkSenderDetail, 0, 3);
         layout.SetColumnSpan(_linkSenderDetail, 2);
+
+        // --- 設定ウィンドウ用（メイン画面には追加しない） ---
 
         _groupSenderDetail = new GroupBox
         {
@@ -319,21 +438,20 @@ partial class Form1
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 2,
-            RowCount = 9,
+            RowCount = 8,
             Padding = new Padding(8)
         };
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         _groupSenderDetail.Controls.Add(detailLayout);
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 入力方式
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // マイクデバイス
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信品質
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信方式
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 送信ゲイン
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 送信開始閾値
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 音声処理
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信テスト音
         detailLayout.Controls.Add(new Label { Text = "入力方式", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
         _comboCaptureApi = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
         _comboCaptureApi.Items.AddRange(new object[] { "WASAPI", "MME (互換)" });
@@ -407,11 +525,6 @@ partial class Form1
             }
         };
         detailLayout.Controls.Add(_chkSendTestTone, 1, 7);
-        detailLayout.Controls.Add(new Label { Text = "送信入力レベル", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 8);
-        _lblSenderMeterDetail = new Label { Text = "Peak -∞ dBFS / RMS -∞ dBFS", AutoSize = true, Anchor = AnchorStyles.Left };
-        detailLayout.Controls.Add(_lblSenderMeterDetail, 1, 8);
-
-        // 詳細設定は別ウィンドウに移動するため、ここでは追加しない
 
         return panel;
     }
@@ -441,6 +554,7 @@ partial class Form1
         if (receiverMode)
         {
             StopSender();
+            UpdateConnectionIndicator("接続待ち", Color.Gray);
             if (_receiverEngine == null || !_receiverEngine.IsRunning)
             {
                 AppLogger.Init("Receiver");
@@ -450,6 +564,7 @@ partial class Form1
         else
         {
             StopReceiver();
+            UpdateConnectionIndicator("待機中", Color.Gray);
             AppLogger.Init("Sender");
         }
     }
@@ -643,6 +758,30 @@ partial class Form1
         if (_receiverEngine != null && _receiverEngine.IsRunning)
         {
             RestartReceiverOutput();
+        }
+    }
+
+    private void ToggleConnectionInfo()
+    {
+        var visible = !_panelConnectionInfo.Visible;
+        _panelConnectionInfo.Visible = visible;
+        _linkConnectionInfo.Text = visible ? "▼ 接続情報を隠す" : "▶ 接続情報を表示";
+    }
+
+    private void UpdateConnectionIndicator(string status, Color color)
+    {
+        Action update = () =>
+        {
+            _lblConnectionIndicator.Text = $"● {status}";
+            _lblConnectionIndicator.ForeColor = color;
+        };
+        if (_lblConnectionIndicator.InvokeRequired)
+        {
+            _lblConnectionIndicator.BeginInvoke(update);
+        }
+        else
+        {
+            update();
         }
     }
 }
