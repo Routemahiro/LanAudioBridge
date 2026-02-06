@@ -536,10 +536,6 @@ partial class Form1
             return;
         }
 
-        // モード切替ボタンの色を更新
-        UiTheme.StyleModeButton(_radioReceiver);
-        UiTheme.StyleModeButton(_radioSender);
-
         if (_radioReceiver.Checked)
         {
             UpdateModeUi(true);
@@ -552,6 +548,10 @@ partial class Form1
 
     private void UpdateModeUi(bool receiverMode)
     {
+        // モード切替ボタンの色を常に同期
+        UiTheme.StyleModeButton(_radioReceiver);
+        UiTheme.StyleModeButton(_radioSender);
+
         _receiverPanel.Visible = receiverMode;
         _senderPanel.Visible = !receiverMode;
 
