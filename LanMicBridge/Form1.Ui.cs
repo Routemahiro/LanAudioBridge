@@ -72,7 +72,7 @@ partial class Form1
 
         _statusStrip = new StatusStrip { Dock = DockStyle.Fill, Visible = false };
         _statusLabel = new ToolStripStatusLabel { Text = "", Spring = true };
-        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = UiTheme.StateError };
+        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = UiTheme.AlertText };
         _restartButton = new ToolStripButton { Text = "再起動" };
         _restartButton.Click += (_, _) => RestartApplication();
         _statusStrip.Items.Add(_statusLabel);
@@ -80,16 +80,9 @@ partial class Form1
         _statusStrip.Items.Add(_restartButton);
         mainLayout.Controls.Add(_statusStrip, 0, 2);
 
-        // ── ダークテーマ適用 ──
-        UiTheme.Apply(this);
-        UiTheme.ApplyToStatusStrip(_statusStrip);
+        // モード切替ボタンのスタイル適用
         UiTheme.StyleModeButton(_radioReceiver);
         UiTheme.StyleModeButton(_radioSender);
-
-        // 特殊カラー復元（テーマ再帰適用で上書きされるため）
-        _lblMeterWarning.ForeColor = UiTheme.StateWarning;
-        _lblConnectionIndicator.ForeColor = UiTheme.StateIdle;
-        _lblConnectionIndicator.Font = UiTheme.FontIndicator;
 
         Load += Form1_Load;
         FormClosing += Form1_FormClosing;
@@ -140,7 +133,7 @@ partial class Form1
             Text = "",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            ForeColor = UiTheme.StateWarning
+            ForeColor = UiTheme.WarningText
         };
         layout.Controls.Add(_lblMeterWarning, 0, 2);
 
