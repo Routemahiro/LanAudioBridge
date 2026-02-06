@@ -162,21 +162,16 @@ public partial class Form1 : Form
             AppLogger.Log($"受信状態 {text}");
         }
 
-        if (InvokeRequired)
-        {
-            BeginInvoke(() => _statusLabel.Text = text);
-        }
-        else
-        {
-            _statusLabel.Text = text;
-        }
-
-        // 接続インジケーター更新（受信モード時）
+        // 接続インジケーター更新（受信モード時）— ステータスバーはインジケーターで代替
         if (_radioReceiver.Checked)
         {
-            if (text.Contains("受信中") || text.Contains("再生中"))
+            if (text == "接続中")
             {
                 UpdateConnectionIndicator("受信中", Color.LimeGreen);
+            }
+            else if (text == "再接続中")
+            {
+                UpdateConnectionIndicator("再接続中", Color.Gold);
             }
             else if (text.Contains("エラー"))
             {
@@ -184,7 +179,7 @@ public partial class Form1 : Form
             }
             else
             {
-                UpdateConnectionIndicator("接続待ち", Color.Gray);
+                UpdateConnectionIndicator("待受中", Color.Gray);
             }
         }
     }
@@ -218,8 +213,7 @@ public partial class Form1 : Form
     private void SetAlertText(string message)
     {
         _alertLabel.Text = message;
-        _alertLabel.Visible = true;
-        _restartButton.Visible = true;
+        _statusStrip.Visible = true;
     }
 
     private void RestartApplication()

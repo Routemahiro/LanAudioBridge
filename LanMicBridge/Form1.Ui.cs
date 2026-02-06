@@ -70,14 +70,10 @@ partial class Form1
         contentPanel.Controls.Add(_senderPanel);
         _senderPanel.Visible = false;
 
-        _statusStrip = new StatusStrip { Dock = DockStyle.Fill };
-        _statusLabel = new ToolStripStatusLabel { Text = "待受中", Spring = true };
-        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = Color.DarkRed, Visible = false };
-        _restartButton = new ToolStripButton
-        {
-            Text = "再起動",
-            Visible = false
-        };
+        _statusStrip = new StatusStrip { Dock = DockStyle.Fill, Visible = false };
+        _statusLabel = new ToolStripStatusLabel { Text = "", Spring = true };
+        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = Color.DarkRed };
+        _restartButton = new ToolStripButton { Text = "再起動" };
         _restartButton.Click += (_, _) => RestartApplication();
         _statusStrip.Items.Add(_statusLabel);
         _statusStrip.Items.Add(_alertLabel);

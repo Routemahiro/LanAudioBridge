@@ -116,6 +116,11 @@ partial class Form1
             _loadingSettings = false;
         }
 
+        // 接続情報の折りたたみ状態を復元（未設定=初回は表示状態）
+        var connInfoVisible = settings.ConnectionInfoVisible ?? true;
+        _panelConnectionInfo.Visible = connInfoVisible;
+        _linkConnectionInfo.Text = connInfoVisible ? "▼ 接続情報を隠す" : "▶ 接続情報を表示";
+
         var settingsVisible = settings.SettingsVisible ?? false;
         var tabIndex = settings.SettingsTabIndex ?? -1;
         if (settingsVisible)
@@ -160,7 +165,8 @@ partial class Form1
             SenderDetailVisible = _settingsForm != null && _settingsForm.Visible && _settingsForm.SelectedTabIndex == 1,
             VadThresholdDb = _vadThresholdDb,
             SettingsVisible = _settingsForm != null && _settingsForm.Visible,
-            SettingsTabIndex = _settingsForm != null ? _settingsForm.SelectedTabIndex : null
+            SettingsTabIndex = _settingsForm != null ? _settingsForm.SelectedTabIndex : null,
+            ConnectionInfoVisible = _panelConnectionInfo.Visible
         };
 
         if (_comboOutputDevice.SelectedIndex >= 0 &&

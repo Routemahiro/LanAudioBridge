@@ -29,6 +29,7 @@ internal sealed class AppSettings
     public float? VadThresholdDb { get; set; }
     public bool? SettingsVisible { get; set; }
     public int? SettingsTabIndex { get; set; }
+    public bool? ConnectionInfoVisible { get; set; }
 
     public static AppSettings Load()
     {

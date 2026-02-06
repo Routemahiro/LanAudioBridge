@@ -217,13 +217,13 @@ partial class Form1
         // 接続インジケーター更新（送信モード時）
         if (_radioSender.Checked)
         {
-            if (text == "送信中")
+            if (text == "接続中")
             {
                 UpdateConnectionIndicator("送信中", Color.LimeGreen);
             }
-            else if (text == "接続中" || text == "再接続中")
+            else if (text == "再接続中")
             {
-                UpdateConnectionIndicator("接続中", Color.Gold);
+                UpdateConnectionIndicator("再接続中", Color.Gold);
             }
             else if (text.Contains("エラー"))
             {
