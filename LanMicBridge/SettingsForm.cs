@@ -23,6 +23,10 @@ internal sealed class SettingsForm : Form
         AttachContent(_receiverTab, receiverContent);
         AttachContent(_senderTab, senderContent);
         AttachContent(_infoTab, infoContent);
+
+        // ダークテーマ適用
+        UiTheme.Apply(this);
+        UiTheme.ApplyToTabControl(_tabs);
     }
 
     public int SelectedTabIndex

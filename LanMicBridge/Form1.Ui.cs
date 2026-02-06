@@ -21,7 +21,7 @@ partial class Form1
             RowCount = 3,
             ColumnCount = 1
         };
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));   // 8px grid
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
         Controls.Add(mainLayout);
@@ -34,7 +34,7 @@ partial class Form1
             AutoSize = false,
             Width = 160,
             Height = 40,
-            Location = new Point(20, 10),
+            Location = new Point(UiTheme.SpaceMd, UiTheme.SpaceSm),
             Checked = true
         };
         _radioReceiver.CheckedChanged += ModeChanged;
@@ -45,16 +45,16 @@ partial class Form1
             AutoSize = false,
             Width = 160,
             Height = 40,
-            Location = new Point(190, 10)
+            Location = new Point(UiTheme.SpaceMd + 168, UiTheme.SpaceSm)
         };
         _radioSender.CheckedChanged += ModeChanged;
         _lblConnectionIndicator = new Label
         {
             Text = "● 接続待ち",
             AutoSize = true,
-            ForeColor = Color.Gray,
-            Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-            Location = new Point(380, 18)
+            ForeColor = UiTheme.StateIdle,
+            Font = UiTheme.FontIndicator,
+            Location = new Point(380, UiTheme.SpaceMd)
         };
         modePanel.Controls.Add(_radioReceiver);
         modePanel.Controls.Add(_radioSender);
@@ -72,13 +72,24 @@ partial class Form1
 
         _statusStrip = new StatusStrip { Dock = DockStyle.Fill, Visible = false };
         _statusLabel = new ToolStripStatusLabel { Text = "", Spring = true };
-        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = Color.DarkRed };
+        _alertLabel = new ToolStripStatusLabel { Text = "", ForeColor = UiTheme.StateError };
         _restartButton = new ToolStripButton { Text = "再起動" };
         _restartButton.Click += (_, _) => RestartApplication();
         _statusStrip.Items.Add(_statusLabel);
         _statusStrip.Items.Add(_alertLabel);
         _statusStrip.Items.Add(_restartButton);
         mainLayout.Controls.Add(_statusStrip, 0, 2);
+
+        // ── ダークテーマ適用 ──
+        UiTheme.Apply(this);
+        UiTheme.ApplyToStatusStrip(_statusStrip);
+        UiTheme.StyleModeButton(_radioReceiver);
+        UiTheme.StyleModeButton(_radioSender);
+
+        // 特殊カラー復元（テーマ再帰適用で上書きされるため）
+        _lblMeterWarning.ForeColor = UiTheme.StateWarning;
+        _lblConnectionIndicator.ForeColor = UiTheme.StateIdle;
+        _lblConnectionIndicator.Font = UiTheme.FontIndicator;
 
         Load += Form1_Load;
         FormClosing += Form1_FormClosing;
@@ -91,7 +102,7 @@ partial class Form1
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 7,
-            Padding = new Padding(16)
+            Padding = new Padding(UiTheme.SpaceMd)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 0: 受信音量
@@ -99,7 +110,7 @@ partial class Form1
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 警告
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 3: 統計
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 4: 接続情報（折りたたみ）
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 5: 詳細設定リンク
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 5: 詳細設定リンク (8px grid)
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 6: 余白
         panel.Controls.Add(layout);
 
@@ -109,7 +120,7 @@ partial class Form1
             Text = "受信: Peak -∞ dBFS / RMS -∞ dBFS",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            Padding = new Padding(0, 4, 0, 2)
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
         };
         layout.Controls.Add(_lblMeterA, 0, 0);
 
@@ -119,7 +130,7 @@ partial class Form1
             Text = "出力: Peak -∞ dBFS / RMS -∞ dBFS",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            Padding = new Padding(0, 2, 0, 2)
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
         };
         layout.Controls.Add(_lblOutputLevel, 0, 1);
 
@@ -129,7 +140,7 @@ partial class Form1
             Text = "",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            ForeColor = Color.DarkOrange
+            ForeColor = UiTheme.StateWarning
         };
         layout.Controls.Add(_lblMeterWarning, 0, 2);
 
@@ -139,7 +150,7 @@ partial class Form1
             Text = "Packets: 0  Loss: 0%  Jitter: 0ms  Delay: 0ms",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            Padding = new Padding(0, 4, 0, 4)
+            Padding = new Padding(0, UiTheme.SpaceSm, 0, UiTheme.SpaceSm)
         };
         layout.Controls.Add(_lblStats, 0, 3);
 
@@ -159,7 +170,7 @@ partial class Form1
             RowCount = 2
         };
         connSectionLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        connSectionLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        connSectionLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
         connSectionLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         _linkConnectionInfo = new LinkLabel
@@ -185,13 +196,13 @@ partial class Form1
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 2,
             RowCount = 4,
-            Padding = new Padding(16, 4, 0, 4)
+            Padding = new Padding(UiTheme.SpaceMd, UiTheme.SpaceSm, 0, UiTheme.SpaceSm)
         };
         connLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         connLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
-        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
+        connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
         connLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         connLayout.Controls.Add(new Label { Text = "このPCのIP (IPv4)", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
@@ -262,15 +273,15 @@ partial class Form1
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 2,
             RowCount = 6,
-            Padding = new Padding(8)
+            Padding = new Padding(UiTheme.SpaceSm)
         };
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         detailLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 出力デバイス
         detailLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // ジッタバッファ
         detailLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 音声処理
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));  // 出力ゲイン
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));  // 強制再生待ち
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));  // 出力ゲイン (8px grid)
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));  // 強制再生待ち (8px grid)
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // チェック音
         _groupReceiverDetail.Controls.Add(detailLayout);
         detailLayout.Controls.Add(new Label { Text = "出力デバイス", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
@@ -300,7 +311,7 @@ partial class Form1
             AutoSize = false,
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(0, 4, 0, 0)
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, 0)
         }, 0, 3);
         var gainPanel = new Panel { Dock = DockStyle.Fill };
         _trackOutputGain = new TrackBar { Minimum = 25, Maximum = 1000, Value = 100, TickFrequency = 25, Dock = DockStyle.Fill };
@@ -316,7 +327,7 @@ partial class Form1
             AutoSize = false,
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(0, 4, 0, 0)
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, 0)
         }, 0, 4);
         var forcePanel = new Panel { Dock = DockStyle.Fill };
         _trackOutputForceStart = new TrackBar { Minimum = 5, Maximum = 10, Value = 10, TickFrequency = 1, Dock = DockStyle.Fill };
@@ -365,7 +376,7 @@ partial class Form1
                    "  → 送信品質を下げてみる",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            Padding = new Padding(8)
+            Padding = new Padding(UiTheme.SpaceSm)
         };
         infoLayout.Controls.Add(_lblMeterGuide, 0, 0);
 
@@ -380,14 +391,14 @@ partial class Form1
             Dock = DockStyle.Fill,
             ColumnCount = 2,
             RowCount = 5,
-            Padding = new Padding(16)
+            Padding = new Padding(UiTheme.SpaceMd)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 0: IP入力
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 1: 開始/停止 + ステータス
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 送信入力レベル（メインに昇格）
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 3: 詳細設定リンク
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 3: 詳細設定リンク (8px grid)
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 4: 余白
         panel.Controls.Add(layout);
 
@@ -407,7 +418,7 @@ partial class Form1
             Text = "入力: Peak -∞ dBFS / RMS -∞ dBFS",
             AutoSize = true,
             Anchor = AnchorStyles.Left,
-            Padding = new Padding(0, 4, 0, 4)
+            Padding = new Padding(0, UiTheme.SpaceSm, 0, UiTheme.SpaceSm)
         };
         layout.SetColumnSpan(_lblSenderMeterDetail, 2);
         layout.Controls.Add(_lblSenderMeterDetail, 0, 2);
@@ -435,19 +446,19 @@ partial class Form1
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 2,
             RowCount = 8,
-            Padding = new Padding(8)
+            Padding = new Padding(UiTheme.SpaceSm)
         };
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         _groupSenderDetail.Controls.Add(detailLayout);
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 入力方式
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // マイクデバイス
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信品質
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信方式
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 入力方式 (8px grid)
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // マイクデバイス
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 送信品質
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 送信方式
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 送信ゲイン
         detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 送信開始閾値
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 音声処理
-        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));  // 送信テスト音
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 音声処理
+        detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 送信テスト音
         detailLayout.Controls.Add(new Label { Text = "入力方式", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
         _comboCaptureApi = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
         _comboCaptureApi.Items.AddRange(new object[] { "WASAPI", "MME (互換)" });
@@ -532,6 +543,10 @@ partial class Form1
             return;
         }
 
+        // モード切替ボタンの色を更新
+        UiTheme.StyleModeButton(_radioReceiver);
+        UiTheme.StyleModeButton(_radioSender);
+
         if (_radioReceiver.Checked)
         {
             UpdateModeUi(true);
@@ -550,7 +565,7 @@ partial class Form1
         if (receiverMode)
         {
             StopSender();
-            UpdateConnectionIndicator("接続待ち", Color.Gray);
+            UpdateConnectionIndicator("接続待ち", UiTheme.StateIdle);
             if (_receiverEngine == null || !_receiverEngine.IsRunning)
             {
                 AppLogger.Init("Receiver");
@@ -560,7 +575,7 @@ partial class Form1
         else
         {
             StopReceiver();
-            UpdateConnectionIndicator("待機中", Color.Gray);
+            UpdateConnectionIndicator("待機中", UiTheme.StateIdle);
             AppLogger.Init("Sender");
         }
     }

@@ -219,19 +219,19 @@ partial class Form1
         {
             if (text == "接続中")
             {
-                UpdateConnectionIndicator("送信中", Color.LimeGreen);
+                UpdateConnectionIndicator("送信中", UiTheme.StateOk);
             }
             else if (text == "再接続中")
             {
-                UpdateConnectionIndicator("再接続中", Color.Gold);
+                UpdateConnectionIndicator("再接続中", UiTheme.StateWarning);
             }
             else if (text.Contains("エラー"))
             {
-                UpdateConnectionIndicator("エラー", Color.Red);
+                UpdateConnectionIndicator("エラー", UiTheme.StateError);
             }
             else
             {
-                UpdateConnectionIndicator("待機中", Color.Gray);
+                UpdateConnectionIndicator("待機中", UiTheme.StateIdle);
             }
         }
     }
