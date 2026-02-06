@@ -81,7 +81,7 @@ public partial class Form1 : Form
     private Label _lblStats = null!;
     private Button _btnCheckTone = null!;
     private Label _lblCheckResult = null!;
-    private LinkLabel _linkReceiverDetail = null!;
+    private Button _linkReceiverDetail = null!;
     private GroupBox _groupReceiverDetail = null!;
     private ComboBox _comboOutputDevice = null!;
     private ComboBox _comboJitter = null!;
@@ -99,7 +99,7 @@ public partial class Form1 : Form
     private TextBox _txtIp = null!;
     private Button _btnSenderToggle = null!;
     private Label _lblSenderStatus = null!;
-    private LinkLabel _linkSenderDetail = null!;
+    private Button _linkSenderDetail = null!;
     private GroupBox _groupSenderDetail = null!;
     private ComboBox _comboCaptureApi = null!;
     private ComboBox _comboMicDevice = null!;

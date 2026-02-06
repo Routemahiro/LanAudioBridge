@@ -94,7 +94,7 @@ partial class Form1
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 7,
+            RowCount = 8,
             Padding = new Padding(UiTheme.SpaceMd)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -102,9 +102,10 @@ partial class Form1
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 1: 出力レベル
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 警告
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 3: 統計
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 4: 接続情報（折りたたみ）
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 5: 詳細設定リンク (8px grid)
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 6: 余白
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 4: ─── 区切り線 ───
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 5: 接続情報（折りたたみ）
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 6: 詳細設定ボタン
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 7: 余白
         panel.Controls.Add(layout);
 
         // Row 0: 受信音量（メイン表示に昇格）
@@ -147,7 +148,10 @@ partial class Form1
         };
         layout.Controls.Add(_lblStats, 0, 3);
 
-        // Row 4: 接続情報（折りたたみセクション）
+        // Row 4: 区切り線
+        layout.Controls.Add(UiTheme.CreateSeparator(), 0, 4);
+
+        // Row 5: 接続情報（折りたたみセクション）
         var connSection = new Panel
         {
             Dock = DockStyle.Top,
@@ -207,12 +211,13 @@ partial class Form1
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft
         };
-        _btnCopyIp = new Button
+        _btnCopyIp = new RoundedButton
         {
             Text = "コピー",
             Width = 80,
             Height = 26,
-            Anchor = AnchorStyles.Right | AnchorStyles.Top
+            Anchor = AnchorStyles.Right | AnchorStyles.Top,
+            BorderRadius = 6
         };
         _btnCopyIp.Click += (_, _) => CopyIpToClipboard();
         ipPanel.Controls.Add(_lblIpList);
@@ -241,12 +246,20 @@ partial class Form1
         _panelConnectionInfo.Controls.Add(connLayout);
         connSectionLayout.Controls.Add(_panelConnectionInfo, 0, 1);
         connSection.Controls.Add(connSectionLayout);
-        layout.Controls.Add(connSection, 0, 4);
+        layout.Controls.Add(connSection, 0, 5);
 
-        // Row 5: 詳細設定リンク
-        _linkReceiverDetail = new LinkLabel { Text = "詳細設定を開く", AutoSize = true, Anchor = AnchorStyles.Left };
+        // Row 6: 詳細設定ボタン
+        _linkReceiverDetail = new RoundedButton
+        {
+            Text = "\u2699 詳細設定",
+            Width = 140,
+            Height = 32,
+            Anchor = AnchorStyles.Left,
+            BackColor = SystemColors.Control,
+            ForeColor = SystemColors.ControlText
+        };
         _linkReceiverDetail.Click += (_, _) => OpenSettingsTab(0);
-        layout.Controls.Add(_linkReceiverDetail, 0, 5);
+        layout.Controls.Add(_linkReceiverDetail, 0, 6);
 
         // --- 設定ウィンドウ用（メイン画面には追加しない） ---
 
@@ -331,7 +344,7 @@ partial class Form1
         detailLayout.Controls.Add(forcePanel, 1, 4);
         UpdateOutputForceStart();
 
-        _btnCheckTone = new Button { Text = "チェック音を鳴らす", Width = 160, Height = 30, Anchor = AnchorStyles.Left };
+        _btnCheckTone = new RoundedButton { Text = "チェック音を鳴らす", Width = 160, Height = 30, Anchor = AnchorStyles.Left };
         _btnCheckTone.Click += BtnCheckTone_Click;
         _lblCheckResult = new Label { Text = "結果: -", AutoSize = true, Anchor = AnchorStyles.Left };
         detailLayout.Controls.Add(_btnCheckTone, 0, 5);
@@ -383,7 +396,7 @@ partial class Form1
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
-            RowCount = 5,
+            RowCount = 6,
             Padding = new Padding(UiTheme.SpaceMd)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
@@ -391,15 +404,16 @@ partial class Form1
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 0: IP入力
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 1: 開始/停止 + ステータス
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 2: 送信入力レベル（メインに昇格）
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));  // 3: 詳細設定リンク (8px grid)
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 4: 余白
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // 3: ─── 区切り線 ───
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));  // 4: 詳細設定ボタン
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // 5: 余白
         panel.Controls.Add(layout);
 
         layout.Controls.Add(new Label { Text = "受信側IPアドレス", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
         _txtIp = new TextBox { Dock = DockStyle.Fill };
         layout.Controls.Add(_txtIp, 1, 0);
 
-        _btnSenderToggle = new Button { Text = "開始", Width = 120, Height = 30, Anchor = AnchorStyles.Left };
+        _btnSenderToggle = new RoundedButton { Text = "開始", Width = 120, Height = 30, Anchor = AnchorStyles.Left };
         _btnSenderToggle.Click += BtnSenderToggle_Click;
         _lblSenderStatus = new Label { Text = "待機中", AutoSize = true, Anchor = AnchorStyles.Left };
         layout.Controls.Add(_btnSenderToggle, 0, 1);
@@ -416,10 +430,23 @@ partial class Form1
         layout.SetColumnSpan(_lblSenderMeterDetail, 2);
         layout.Controls.Add(_lblSenderMeterDetail, 0, 2);
 
-        // Row 3: 詳細設定リンク
-        _linkSenderDetail = new LinkLabel { Text = "詳細設定を開く", AutoSize = true, Anchor = AnchorStyles.Left };
+        // Row 3: 区切り線
+        var senderSep = UiTheme.CreateSeparator();
+        layout.Controls.Add(senderSep, 0, 3);
+        layout.SetColumnSpan(senderSep, 2);
+
+        // Row 4: 詳細設定ボタン
+        _linkSenderDetail = new RoundedButton
+        {
+            Text = "\u2699 詳細設定",
+            Width = 140,
+            Height = 32,
+            Anchor = AnchorStyles.Left,
+            BackColor = SystemColors.Control,
+            ForeColor = SystemColors.ControlText
+        };
         _linkSenderDetail.Click += (_, _) => OpenSettingsTab(1);
-        layout.Controls.Add(_linkSenderDetail, 0, 3);
+        layout.Controls.Add(_linkSenderDetail, 0, 4);
         layout.SetColumnSpan(_linkSenderDetail, 2);
 
         // --- 設定ウィンドウ用（メイン画面には追加しない） ---

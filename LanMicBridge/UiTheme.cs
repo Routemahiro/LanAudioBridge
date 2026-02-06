@@ -38,6 +38,21 @@ internal static class UiTheme
     public const int SpaceXl = 32;
 
     /// <summary>
+    /// セクション区切り線を生成する。
+    /// </summary>
+    public static Control CreateSeparator()
+    {
+        return new Label
+        {
+            AutoSize = false,
+            Height = 1,
+            Dock = DockStyle.Top,
+            BackColor = SystemColors.ControlLight,
+            Margin = new Padding(0, SpaceSm, 0, SpaceSm)
+        };
+    }
+
+    /// <summary>
     /// モード切替ボタン（RadioButton Appearance.Button）をスタイル適用する。
     /// Checked 状態に応じてアクセント色/通常色を切り替える。
     /// </summary>
