@@ -14,6 +14,7 @@ partial class Form1
         MinimumSize = new Size(720, 460);
         Size = new Size(780, 500);
         StartPosition = FormStartPosition.CenterScreen;
+        Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
         var mainLayout = new TableLayoutPanel
         {
