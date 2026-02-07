@@ -124,9 +124,11 @@ public partial class Form1 : Form
     private ReceiverEngine? _receiverEngine;
     private SenderEngine? _senderEngine;
 
-    // ── タスクトレイ / 自動接続 ──
+    // ── タスクトレイ / 自動接続 / 自動起動 ──
     private NotifyIcon _notifyIcon = null!;
     private CheckBox _chkAutoConnect = null!;
+    private CheckBox _chkAutoStartMinimized = null!;
+    private CheckBox _chkRunAtWindowsStartup = null!;
     private GroupBox _groupBehavior = null!;
     private readonly EventWaitHandle? _showWindowEvent;
     private CancellationTokenSource? _showWindowCts;
@@ -154,6 +156,16 @@ public partial class Form1 : Form
             {
                 BeginInvoke(() => StartSender());
             }
+        }
+
+        // 起動時にトレイに格納（AutoStartMinimized）
+        if (_appSettings.AutoStartMinimized == true)
+        {
+            BeginInvoke(() =>
+            {
+                WindowState = FormWindowState.Minimized;
+                MinimizeToTray();
+            });
         }
 
         // 2重起動時にトレイ格納中でも復帰できるよう EventWaitHandle を監視

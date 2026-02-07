@@ -115,6 +115,14 @@ partial class Form1
             {
                 _chkAutoConnect.Checked = settings.AutoConnect.Value;
             }
+
+            if (settings.AutoStartMinimized.HasValue)
+            {
+                _chkAutoStartMinimized.Checked = settings.AutoStartMinimized.Value;
+            }
+
+            // スタートアップ状態はファイルの存在で判定（設定値より実態を優先）
+            _chkRunAtWindowsStartup.Checked = IsWindowsStartupEnabled();
         }
         finally
         {
@@ -156,6 +164,8 @@ partial class Form1
         {
             LastMode = _radioSender.Checked ? "Sender" : "Receiver",
             AutoConnect = _chkAutoConnect.Checked,
+            AutoStartMinimized = _chkAutoStartMinimized.Checked,
+            RunAtWindowsStartup = _chkRunAtWindowsStartup.Checked,
             JitterIndex = _comboJitter.SelectedIndex,
             OutputGainPercent = _trackOutputGain.Value,
             OutputForceStartMs = _outputForceStartMs,

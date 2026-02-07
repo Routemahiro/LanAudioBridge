@@ -133,6 +133,32 @@ partial class Form1
             Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
         };
         behaviorLayout.Controls.Add(_chkAutoConnect, 0, 0);
+
+        _chkAutoStartMinimized = new CheckBox
+        {
+            Text = "起動時にタスクトレイに格納する（ウィンドウを表示しない）",
+            AutoSize = true,
+            Checked = false,
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
+        };
+        behaviorLayout.Controls.Add(_chkAutoStartMinimized, 0, 1);
+
+        _chkRunAtWindowsStartup = new CheckBox
+        {
+            Text = "Windows起動時に自動起動する",
+            AutoSize = true,
+            Checked = false,
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
+        };
+        _chkRunAtWindowsStartup.CheckedChanged += (_, _) =>
+        {
+            if (!_loadingSettings)
+            {
+                SetWindowsStartup(_chkRunAtWindowsStartup.Checked);
+            }
+        };
+        behaviorLayout.Controls.Add(_chkRunAtWindowsStartup, 0, 2);
+
         _groupBehavior.Controls.Add(behaviorLayout);
 
         Load += Form1_Load;
@@ -866,6 +892,84 @@ partial class Form1
         else
         {
             update();
+        }
+    }
+
+    // ── スタートアップフォルダ管理 ──────────────────────────────
+
+    private static string GetStartupShortcutPath()
+    {
+        var startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+        return Path.Combine(startupFolder, "LanMicBridge.lnk");
+    }
+
+    private static bool IsWindowsStartupEnabled()
+    {
+        return File.Exists(GetStartupShortcutPath());
+    }
+
+    private static void SetWindowsStartup(bool enable)
+    {
+        var shortcutPath = GetStartupShortcutPath();
+
+        if (enable)
+        {
+            CreateShortcut(shortcutPath, Application.ExecutablePath);
+            AppLogger.Log("スタートアップ登録");
+        }
+        else
+        {
+            try
+            {
+                if (File.Exists(shortcutPath))
+                {
+                    File.Delete(shortcutPath);
+                }
+                AppLogger.Log("スタートアップ解除");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogException("スタートアップ解除失敗", ex);
+            }
+        }
+    }
+
+    /// <summary>
+    /// WScript.Shell COM を使って .lnk ショートカットを作成する。
+    /// </summary>
+    private static void CreateShortcut(string shortcutPath, string targetPath)
+    {
+        try
+        {
+            var shellType = Type.GetTypeFromProgID("WScript.Shell");
+            if (shellType == null) return;
+
+            dynamic? shell = Activator.CreateInstance(shellType);
+            if (shell == null) return;
+
+            try
+            {
+                dynamic shortcut = shell.CreateShortcut(shortcutPath);
+                try
+                {
+                    shortcut.TargetPath = targetPath;
+                    shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath) ?? "";
+                    shortcut.Description = "LanMicBridge";
+                    shortcut.Save();
+                }
+                finally
+                {
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(shortcut);
+                }
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(shell);
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.LogException("ショートカット作成失敗", ex);
         }
     }
 }

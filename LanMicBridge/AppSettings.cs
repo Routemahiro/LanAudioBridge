@@ -31,6 +31,8 @@ internal sealed class AppSettings
     public int? SettingsTabIndex { get; set; }
     public bool? ConnectionInfoVisible { get; set; }
     public bool? AutoConnect { get; set; }
+    public bool? AutoStartMinimized { get; set; }
+    public bool? RunAtWindowsStartup { get; set; }
 
     public static AppSettings Load()
     {
