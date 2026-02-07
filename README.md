@@ -89,7 +89,7 @@ Opusエンコード対応で、品質と遅延のバランスを細かく調整�
 ### 3. リポジトリを取得
 
 ```powershell
-git clone https://github.com/route20191212/LanAudioBridge.git
+git clone https://github.com/Routemahiro/LanAudioBridge.git
 cd LanAudioBridge
 ```
 
