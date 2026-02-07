@@ -335,14 +335,14 @@ public partial class Form1 : Form
             SaveAppSettings();
             StopSender();
             StopReceiver();
+            _notifyIcon.Visible = false;
         }
         catch
         {
         }
 
         AppLogger.Log("再起動要求");
-        Application.Restart();
-        Environment.Exit(0);
+        Program.Restart(); // Mutex解放 → 新プロセス起動 → 強制終了
     }
 
     private static void WaitTaskSafely(Task? task, int millisecondsTimeout)

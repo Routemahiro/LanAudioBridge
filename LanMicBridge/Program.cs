@@ -9,6 +9,8 @@ static class Program
     private const string MutexName = "Global\\LanMicBridge_SingleInstance";
     private const string ShowEventName = "Global\\LanMicBridge_ShowWindow";
 
+    private static Mutex? _instanceMutex;
+
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -26,22 +28,67 @@ static class Program
     [STAThread]
     static void Main()
     {
-        using var mutex = new Mutex(true, MutexName, out bool createdNew);
+        _instanceMutex = new Mutex(true, MutexName, out bool createdNew);
 
         if (!createdNew)
         {
             // 既に起動中 → 既存インスタンスを復帰させて終了
             SignalExistingInstance();
+            _instanceMutex.Dispose();
+            _instanceMutex = null;
             return;
         }
 
-        // トレイ格納中でも2回目起動で復帰できるようイベントを作成
-        using var showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
+        try
+        {
+            // トレイ格納中でも2回目起動で復帰できるようイベントを作成
+            using var showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
 
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
-        ApplicationConfiguration.Initialize();
-        Application.Run(new Form1(showEvent));
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            ApplicationConfiguration.Initialize();
+            Application.Run(new Form1(showEvent));
+        }
+        finally
+        {
+            try
+            {
+                _instanceMutex?.ReleaseMutex();
+            }
+            catch { }
+            _instanceMutex?.Dispose();
+            _instanceMutex = null;
+        }
+    }
+
+    /// <summary>
+    /// Mutex を解放 → 新プロセスを起動 → 現在のプロセスを強制終了する。
+    /// Form1.RestartApplication() から呼ばれる。
+    /// </summary>
+    internal static void Restart()
+    {
+        // Mutex を解放して新プロセスが起動できるようにする
+        try
+        {
+            _instanceMutex?.ReleaseMutex();
+            _instanceMutex?.Dispose();
+            _instanceMutex = null;
+        }
+        catch { }
+
+        // 新プロセスを起動
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Application.ExecutablePath,
+                UseShellExecute = true
+            });
+        }
+        catch { }
+
+        // 現在のプロセスを強制終了
+        Environment.Exit(0);
     }
 
     /// <summary>
