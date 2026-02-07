@@ -124,8 +124,16 @@ public partial class Form1 : Form
     private ReceiverEngine? _receiverEngine;
     private SenderEngine? _senderEngine;
 
-    public Form1()
+    // ── タスクトレイ / 自動接続 ──
+    private NotifyIcon _notifyIcon = null!;
+    private CheckBox _chkAutoConnect = null!;
+    private GroupBox _groupBehavior = null!;
+    private readonly EventWaitHandle? _showWindowEvent;
+    private CancellationTokenSource? _showWindowCts;
+
+    public Form1(EventWaitHandle? showWindowEvent = null)
     {
+        _showWindowEvent = showWindowEvent;
         InitializeComponent();
         BuildUi();
     }
@@ -138,13 +146,46 @@ public partial class Form1 : Form
         UpdateCableStatus();
         LoadAppSettings();
         UpdateModeUi(_radioReceiver.Checked);
+
+        // 自動接続: 送信モード時のみ手動開始が必要（受信はUpdateModeUi内で自動開始済み）
+        if (_appSettings.AutoConnect == true && _radioSender.Checked)
+        {
+            if (System.Net.IPAddress.TryParse(_txtIp.Text.Trim(), out _))
+            {
+                BeginInvoke(() => StartSender());
+            }
+        }
+
+        // 2重起動時にトレイ格納中でも復帰できるよう EventWaitHandle を監視
+        if (_showWindowEvent != null)
+        {
+            _showWindowCts = new CancellationTokenSource();
+            var token = _showWindowCts.Token;
+            Task.Run(() =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        if (_showWindowEvent.WaitOne(500))
+                        {
+                            BeginInvoke(RestoreFromTray);
+                        }
+                    }
+                    catch (ObjectDisposedException) { break; }
+                }
+            }, token);
+        }
     }
 
     private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
     {
+        _showWindowCts?.Cancel();
         SaveAppSettings();
         StopSender();
         StopReceiver();
+        _notifyIcon.Visible = false;
+        _notifyIcon.Dispose();
         if (_settingsForm != null)
         {
             _settingsForm.Close();
@@ -153,6 +194,22 @@ public partial class Form1 : Form
         }
         _deviceEnumerator?.Dispose();
         AppLogger.Log("終了");
+    }
+
+    /// <summary>タスクトレイから復帰する</summary>
+    public void RestoreFromTray()
+    {
+        Show();
+        WindowState = FormWindowState.Normal;
+        ShowInTaskbar = true;
+        Activate();
+    }
+
+    /// <summary>タスクトレイに格納する</summary>
+    private void MinimizeToTray()
+    {
+        Hide();
+        ShowInTaskbar = false;
     }
     private void SetStatus(string text)
     {

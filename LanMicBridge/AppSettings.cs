@@ -30,6 +30,7 @@ internal sealed class AppSettings
     public bool? SettingsVisible { get; set; }
     public int? SettingsTabIndex { get; set; }
     public bool? ConnectionInfoVisible { get; set; }
+    public bool? AutoConnect { get; set; }
 
     public static AppSettings Load()
     {

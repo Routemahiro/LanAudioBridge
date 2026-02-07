@@ -5,8 +5,9 @@ namespace LanMicBridge;
 
 static class Program
 {
-    // ── 同時起動防止用 ──────────────────────────────
+    // ── 同時起動防止 + トレイ復帰用 ──────────────────────────────
     private const string MutexName = "Global\\LanMicBridge_SingleInstance";
+    private const string ShowEventName = "Global\\LanMicBridge_ShowWindow";
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -29,15 +30,38 @@ static class Program
 
         if (!createdNew)
         {
-            // 既に起動中 → 既存ウィンドウを前面に出して終了
-            ActivateExistingInstance();
+            // 既に起動中 → 既存インスタンスを復帰させて終了
+            SignalExistingInstance();
             return;
         }
+
+        // トレイ格納中でも2回目起動で復帰できるようイベントを作成
+        using var showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
 
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new Form1());
+        Application.Run(new Form1(showEvent));
+    }
+
+    /// <summary>
+    /// 既に起動中のインスタンスに「ウィンドウを表示して」と通知する。
+    /// EventWaitHandle（トレイ格納中対応）→ フォールバックで SetForegroundWindow。
+    /// </summary>
+    private static void SignalExistingInstance()
+    {
+        try
+        {
+            using var evt = EventWaitHandle.OpenExisting(ShowEventName);
+            evt.Set();
+            return;
+        }
+        catch (WaitHandleCannotBeOpenedException)
+        {
+            // イベントがまだ作成されていない場合はフォールバック
+        }
+
+        ActivateExistingInstance();
     }
 
     /// <summary>
@@ -53,7 +77,6 @@ static class Program
             if (proc.Id == current.Id) continue;
             if (proc.MainWindowHandle == IntPtr.Zero) continue;
 
-            // 最小化されていたら復元
             if (IsIconic(proc.MainWindowHandle))
             {
                 ShowWindow(proc.MainWindowHandle, SW_RESTORE);

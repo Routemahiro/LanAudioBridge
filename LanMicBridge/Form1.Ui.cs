@@ -84,6 +84,57 @@ partial class Form1
         UiTheme.StyleModeButton(_radioReceiver);
         UiTheme.StyleModeButton(_radioSender);
 
+        // ── タスクトレイ ──
+        _notifyIcon = new NotifyIcon
+        {
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application,
+            Text = "LanMicBridge",
+            Visible = true
+        };
+        var trayMenu = new ContextMenuStrip();
+        trayMenu.Items.Add("ウィンドウを表示", null, (_, _) => RestoreFromTray());
+        trayMenu.Items.Add("設定", null, (_, _) => { RestoreFromTray(); OpenSettingsTab(0); });
+        trayMenu.Items.Add(new ToolStripSeparator());
+        trayMenu.Items.Add("終了", null, (_, _) => Application.Exit());
+        _notifyIcon.ContextMenuStrip = trayMenu;
+        _notifyIcon.DoubleClick += (_, _) => RestoreFromTray();
+
+        // 最小化 → タスクトレイに格納
+        Resize += (_, _) =>
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                MinimizeToTray();
+            }
+        };
+
+        // ── 動作設定（設定ウィンドウ「動作」タブ用） ──
+        _groupBehavior = new GroupBox
+        {
+            Text = "動作設定",
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink
+        };
+        var behaviorLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            Padding = new Padding(UiTheme.SpaceSm)
+        };
+        behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _chkAutoConnect = new CheckBox
+        {
+            Text = "起動時に自動接続する（前回のモードで自動的に開始）",
+            AutoSize = true,
+            Checked = false,
+            Padding = new Padding(0, UiTheme.SpaceXs, 0, UiTheme.SpaceXs)
+        };
+        behaviorLayout.Controls.Add(_chkAutoConnect, 0, 0);
+        _groupBehavior.Controls.Add(behaviorLayout);
+
         Load += Form1_Load;
         FormClosing += Form1_FormClosing;
     }
@@ -805,6 +856,8 @@ partial class Form1
         {
             _lblConnectionIndicator.Text = $"● {status}";
             _lblConnectionIndicator.ForeColor = color;
+            // トレイアイコンのツールチップも更新
+            _notifyIcon.Text = $"LanMicBridge - {status}";
         };
         if (_lblConnectionIndicator.InvokeRequired)
         {

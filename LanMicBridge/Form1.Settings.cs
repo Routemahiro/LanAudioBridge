@@ -110,6 +110,11 @@ partial class Form1
             var receiverMode = !string.Equals(settings.LastMode, "Sender", StringComparison.OrdinalIgnoreCase);
             _radioReceiver.Checked = receiverMode;
             _radioSender.Checked = !receiverMode;
+
+            if (settings.AutoConnect.HasValue)
+            {
+                _chkAutoConnect.Checked = settings.AutoConnect.Value;
+            }
         }
         finally
         {
@@ -150,6 +155,7 @@ partial class Form1
         var settings = new AppSettings
         {
             LastMode = _radioSender.Checked ? "Sender" : "Receiver",
+            AutoConnect = _chkAutoConnect.Checked,
             JitterIndex = _comboJitter.SelectedIndex,
             OutputGainPercent = _trackOutputGain.Value,
             OutputForceStartMs = _outputForceStartMs,
@@ -319,7 +325,9 @@ partial class Form1
         _groupSenderDetail.Visible = true;
         _receiverInfoGroup.Visible = true;
 
-        _settingsForm = new SettingsForm(_groupReceiverDetail, _groupSenderDetail, _receiverInfoGroup);
+        _groupBehavior.Visible = true;
+
+        _settingsForm = new SettingsForm(_groupReceiverDetail, _groupSenderDetail, _receiverInfoGroup, _groupBehavior);
         _settingsForm.FormClosing += (_, e) =>
         {
             if (e.CloseReason == CloseReason.UserClosing)

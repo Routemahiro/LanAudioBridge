@@ -6,8 +6,9 @@ internal sealed class SettingsForm : Form
     private readonly TabPage _receiverTab = new() { Text = "受信", AutoScroll = true };
     private readonly TabPage _senderTab = new() { Text = "送信", AutoScroll = true };
     private readonly TabPage _infoTab = new() { Text = "情報", AutoScroll = true };
+    private readonly TabPage _behaviorTab = new() { Text = "動作", AutoScroll = true };
 
-    public SettingsForm(Control receiverContent, Control senderContent, Control infoContent)
+    public SettingsForm(Control receiverContent, Control senderContent, Control infoContent, Control behaviorContent)
     {
         Text = "LanMicBridge 設定";
         StartPosition = FormStartPosition.CenterParent;
@@ -18,11 +19,13 @@ internal sealed class SettingsForm : Form
         _tabs.TabPages.Add(_receiverTab);
         _tabs.TabPages.Add(_senderTab);
         _tabs.TabPages.Add(_infoTab);
+        _tabs.TabPages.Add(_behaviorTab);
         Controls.Add(_tabs);
 
         AttachContent(_receiverTab, receiverContent);
         AttachContent(_senderTab, senderContent);
         AttachContent(_infoTab, infoContent);
+        AttachContent(_behaviorTab, behaviorContent);
     }
 
     public int SelectedTabIndex
