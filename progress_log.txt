@@ -17,3 +17,15 @@
   - 受信側の音声処理はデフォルトOFF、UI上で「OFF推奨」を明記
   - `dotnet build -c Release` でビルド成功（警告0/エラー0）
 
+2026-02-07
+- Phase4: エラー復旧導線の強化（案B実装）
+  - トレイバルーン通知ヘルパー追加（`ShowBalloonNotification`、10秒間隔の連続通知抑制）
+  - `SetStatus`（受信）に状態遷移バルーン通知追加（切断→再接続→復帰）
+  - `SetSenderStatus`（送信）に状態遷移バルーン通知追加（切断→再接続→復帰）
+  - `ShowAlert` からもバルーン通知を発行（トレイ格納中でもエラーに気づける）
+  - Engine側エラーメッセージを「原因＋対処法」セットに全面改善
+    - ReceiverEngine: 受信開始/受信中/出力初期化/チェック音のメッセージ改善
+    - SenderEngine: 送信開始/送信中/録音停止/通信エラーのメッセージ改善
+    - Form1.Receiver/Sender: 同上
+  - `dotnet build` でビルド成功（警告0/エラー0）
+
