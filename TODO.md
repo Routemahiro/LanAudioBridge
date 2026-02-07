@@ -147,4 +147,4 @@
 - [x] Program.cs: `Restart()` static メソッド追加（Mutex解放→新プロセス起動→旧プロセス終了） (2026-02-07 完了)
 - [x] Form1.cs: `RestartApplication()` を `Program.Restart()` 呼び出しに変更 (2026-02-07 完了)
 - [x] `dotnet build` で確認 (2026-02-07 完了)
-- [ ] ユーザー動作確認
+- [x] ユーザー動作確認 (2026-02-07 完了)
