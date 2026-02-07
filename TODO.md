@@ -115,11 +115,15 @@
 - [x] Program.cs: EventWaitHandle でトレイ格納中の2重起動復帰 (2026-02-07 完了)
 
 - [x] `dotnet build` で確認 (2026-02-07 完了)
-- [ ] ユーザー動作確認
+- [x] ユーザー動作確認 (2026-02-07 完了)
 
-#### 未実装（次回追加可能）
-- [ ] `AutoStartMinimized` — 起動時にトレイに格納
-- [ ] `RunAtWindowsStartup` — スタートアップフォルダへのショートカット作成/削除
+#### Windows自動起動 + 最小化起動
+- [ ] `AppSettings` に `AutoStartMinimized` / `RunAtWindowsStartup` 追加
+- [ ] 設定UIに「起動時にタスクトレイに格納する」「Windows起動時に自動起動する」チェック追加
+- [ ] スタートアップフォルダへのショートカット作成/削除
+- [ ] 起動時 `AutoStartMinimized=true` → ウィンドウ非表示でトレイ直行
+- [ ] `dotnet build` で確認
+- [ ] ユーザー動作確認
 
 ### Phase4: エラー復旧導線の強化
 目的: トレイ常駐中でもエラーに気づけるように。「何が起きた→どうすればいい」をセットで伝える。
