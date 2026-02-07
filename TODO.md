@@ -142,5 +142,9 @@
 - [x] `dotnet build` で確認 (2026-02-07 完了)
 - [x] ユーザー動作確認 (2026-02-07 完了)
 
-### バグ修正: 再起動ボタン押下時のエラー
-- [ ] 再起動ボタン押下時に発生するエラーの調査・修正
+### バグ修正: 再起動ボタン押下時のエラー（案B: Mutexフラグ管理 + Process.Start）
+- [ ] Program.cs: Mutex を static フィールドに変更し、外部から解放可能にする (作業中)
+- [ ] Program.cs: `Restart()` static メソッド追加（Mutex解放→新プロセス起動→旧プロセス終了）
+- [ ] Form1.cs: `RestartApplication()` を `Program.Restart()` 呼び出しに変更
+- [ ] `dotnet build` で確認
+- [ ] ユーザー動作確認
