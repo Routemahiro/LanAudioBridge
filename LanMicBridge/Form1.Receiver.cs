@@ -49,7 +49,7 @@ partial class Form1
             AppLogger.LogException("受信開始失敗", ex);
             SetStatus("エラー: 受信開始失敗");
             MessageBox.Show($"受信開始に失敗しました: {ex.Message}", "LanMicBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            ShowAlert("受信開始に失敗しました。再起動を試してください。");
+            ShowAlert("受信を開始できませんでした — ポートが使用中の可能性があります。アプリを再起動してください。");
         }
     }
 
@@ -141,7 +141,7 @@ partial class Form1
         {
             AppLogger.LogException("出力初期化失敗", ex);
             SetStatus("エラー: 出力初期化失敗");
-            ShowAlert("出力初期化に失敗しました。再起動を試してください。");
+            ShowAlert("出力デバイスの初期化に失敗しました — デバイスが取り外されていないか確認してください。");
         }
     }
 

@@ -163,7 +163,7 @@ partial class Form1
             AppLogger.LogException("送信開始失敗", ex);
             StopSender();
             MessageBox.Show($"送信開始に失敗しました: {ex.Message}", "LanMicBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            ShowAlert("送信開始に失敗しました。再起動を試してください。");
+            ShowAlert("送信を開始できませんでした — マイクデバイスとネットワーク接続を確認してください。");
         }
     }
 
@@ -187,15 +187,31 @@ partial class Form1
     {
         if (text != _lastSenderStatus)
         {
+            var prev = _lastSenderStatus;
+
             if (text == "再接続中")
             {
                 _senderReconnectCount++;
                 AppLogger.Log($"送信再接続 count={_senderReconnectCount}");
+                if (prev == "接続中")
+                {
+                    ShowBalloonNotification("送信先との接続が切断されました", "再接続を試みています…", ToolTipIcon.Warning);
+                }
             }
-            else if (text == "待機中" && _lastSenderStatus != string.Empty)
+            else if (text == "接続中" && prev == "再接続中")
+            {
+                AppLogger.Log($"送信状態 {text}");
+                ShowBalloonNotification("再接続しました", "送信を再開しました。", ToolTipIcon.Info);
+            }
+            else if (text == "待機中" && prev != string.Empty)
             {
                 _senderDisconnectCount++;
                 AppLogger.Log($"送信切断 count={_senderDisconnectCount}");
+            }
+            else if (text.Contains("エラー"))
+            {
+                AppLogger.Log($"送信状態 {text}");
+                ShowBalloonNotification("送信エラー", text, ToolTipIcon.Error);
             }
             else
             {

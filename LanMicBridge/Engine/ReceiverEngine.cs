@@ -172,7 +172,7 @@ internal sealed class ReceiverEngine : IDisposable
         {
             AppLogger.LogException("受信開始失敗", ex);
             SetStatus("エラー: 受信開始失敗");
-            RaiseError("受信開始に失敗しました。再起動を試してください。");
+            RaiseError("受信を開始できませんでした — ポートが別のアプリに使われている可能性があります。アプリを再起動してください。");
             Stop();
         }
     }
@@ -259,7 +259,7 @@ internal sealed class ReceiverEngine : IDisposable
         catch (Exception ex)
         {
             AppLogger.LogException("チェック音失敗", ex);
-            RaiseError("チェック音に失敗しました。再起動を試してください。");
+            RaiseError("チェック音の再生に失敗しました — 出力デバイスの設定を確認してください。");
             return false;
         }
     }
@@ -285,7 +285,7 @@ internal sealed class ReceiverEngine : IDisposable
             {
                 AppLogger.LogException("受信エラー", ex);
                 SetStatus("エラー: 受信エラー");
-                RaiseError("受信中にエラーが発生しました。再起動を試してください。");
+                RaiseError("受信中にエラーが発生しました — ネットワーク接続を確認してください。復旧しない場合はアプリを再起動してください。");
             }
         }
     }
@@ -916,7 +916,7 @@ internal sealed class ReceiverEngine : IDisposable
         {
             AppLogger.LogException("出力初期化失敗", ex);
             SetStatus("エラー: 出力初期化失敗");
-            RaiseError("出力初期化に失敗しました。再起動を試してください。");
+            RaiseError("出力デバイスの初期化に失敗しました — デバイスが取り外されていないか確認してください。");
         }
     }
 

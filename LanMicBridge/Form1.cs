@@ -119,6 +119,9 @@ public partial class Form1 : Form
     private ToolStripButton _restartButton = null!;
     private string _lastAlert = string.Empty;
     private DateTime _lastAlertTime = DateTime.MinValue;
+    private string _lastBalloonMessage = string.Empty;
+    private DateTime _lastBalloonTime = DateTime.MinValue;
+    private const int BalloonThrottleSeconds = 10;
     private SettingsForm? _settingsForm;
 
     private ReceiverEngine? _receiverEngine;
@@ -227,8 +230,23 @@ public partial class Form1 : Form
     {
         if (text != _lastReceiverStatus)
         {
+            var prev = _lastReceiverStatus;
             _lastReceiverStatus = text;
             AppLogger.Log($"受信状態 {text}");
+
+            // 状態遷移に応じてバルーン通知
+            if (text == "再接続中" && prev == "接続中")
+            {
+                ShowBalloonNotification("接続が切断されました", "再接続を試みています…", ToolTipIcon.Warning);
+            }
+            else if (text == "接続中" && prev == "再接続中")
+            {
+                ShowBalloonNotification("再接続しました", "受信を再開しました。", ToolTipIcon.Info);
+            }
+            else if (text.Contains("エラー"))
+            {
+                ShowBalloonNotification("受信エラー", text, ToolTipIcon.Error);
+            }
         }
 
         // 接続インジケーター更新（受信モード時）— ステータスバーはインジケーターで代替
@@ -277,12 +295,37 @@ public partial class Form1 : Form
         {
             SetAlertText(message);
         }
+
+        // トレイ格納中でもエラーに気づけるようにバルーン通知
+        ShowBalloonNotification("LanMicBridge", message, ToolTipIcon.Warning);
     }
 
     private void SetAlertText(string message)
     {
         _alertLabel.Text = message;
         _statusStrip.Visible = true;
+    }
+
+    /// <summary>トレイアイコンにバルーン通知を表示する（連続通知抑制付き）</summary>
+    private void ShowBalloonNotification(string title, string message, ToolTipIcon icon = ToolTipIcon.Info)
+    {
+        var now = DateTime.UtcNow;
+        if (message == _lastBalloonMessage && (now - _lastBalloonTime).TotalSeconds < BalloonThrottleSeconds)
+        {
+            return;
+        }
+
+        _lastBalloonMessage = message;
+        _lastBalloonTime = now;
+
+        if (InvokeRequired)
+        {
+            BeginInvoke(() => _notifyIcon.ShowBalloonTip(5000, title, message, icon));
+        }
+        else
+        {
+            _notifyIcon.ShowBalloonTip(5000, title, message, icon);
+        }
     }
 
     private void RestartApplication()

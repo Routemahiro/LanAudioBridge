@@ -196,7 +196,7 @@ internal sealed class SenderEngine : IDisposable
         catch (Exception ex)
         {
             AppLogger.LogException("送信開始失敗", ex);
-            RaiseError("送信開始に失敗しました。再起動を試してください。");
+            RaiseError("送信を開始できませんでした — IPアドレスとネットワーク接続を確認してください。");
             Stop();
         }
     }
@@ -329,7 +329,7 @@ internal sealed class SenderEngine : IDisposable
         if (e.Exception != null)
         {
             AppLogger.LogException("録音停止", e.Exception);
-            RaiseError("録音が停止しました。再起動を試してください。");
+            RaiseError("マイクが切断されました — デバイスを再接続してアプリを再起動してください。");
             Stop();
         }
     }
@@ -457,7 +457,7 @@ internal sealed class SenderEngine : IDisposable
             {
                 AppLogger.LogException("送信ループ", ex);
                 SetStatus("エラー");
-                RaiseError("送信中にエラーが発生しました。再起動を試してください。");
+                RaiseError("送信中にエラーが発生しました — ネットワーク接続を確認してください。復旧しない場合はアプリを再起動してください。");
                 await Task.Delay(200, token);
             }
 
@@ -504,7 +504,7 @@ internal sealed class SenderEngine : IDisposable
             catch (Exception ex)
             {
                 AppLogger.LogException("送信受信", ex);
-                RaiseError("送信中にエラーが発生しました。再起動を試してください。");
+                RaiseError("受信側との通信にエラーが発生しました — ネットワーク接続を確認してください。");
                 await Task.Delay(200, token);
             }
         }
