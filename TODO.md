@@ -117,12 +117,12 @@
 - [x] `dotnet build` で確認 (2026-02-07 完了)
 - [x] ユーザー動作確認 (2026-02-07 完了)
 
-#### Windows自動起動 + 最小化起動
-- [ ] `AppSettings` に `AutoStartMinimized` / `RunAtWindowsStartup` 追加
-- [ ] 設定UIに「起動時にタスクトレイに格納する」「Windows起動時に自動起動する」チェック追加
-- [ ] スタートアップフォルダへのショートカット作成/削除
-- [ ] 起動時 `AutoStartMinimized=true` → ウィンドウ非表示でトレイ直行
-- [ ] `dotnet build` で確認
+#### Windows自動起動 + 最小化起動 (2026-02-07 完了)
+- [x] `AppSettings` に `AutoStartMinimized` / `RunAtWindowsStartup` 追加 (2026-02-07 完了)
+- [x] 設定UIに「起動時にタスクトレイに格納する」「Windows起動時に自動起動する」チェック追加 (2026-02-07 完了)
+- [x] スタートアップフォルダへのショートカット作成/削除（WScript.Shell COM） (2026-02-07 完了)
+- [x] 起動時 `AutoStartMinimized=true` → ウィンドウ非表示でトレイ直行 (2026-02-07 完了)
+- [x] `dotnet build` で確認 (2026-02-07 完了)
 - [ ] ユーザー動作確認
 
 ### Phase4: エラー復旧導線の強化
